@@ -1,0 +1,26 @@
+{
+  "SrchostIp": "10.10.30.16",
+  "SrcUser": "root",
+  "SrcUserPasswd": "letsg0",
+  "DsthostIp": "10.10.30.16",
+  "DstUser": "root",
+  "DstUserPasswd": "letsg0",
+  "SrchostPort": "33100",
+  "DsthostPort": "33101",
+  "DoDB": [
+  ],
+  "IngoreDB": [
+    "information_schema",
+    "performance_schema",
+    "sys",
+    "mysql"
+  ],
+  "MydumperConfig": {
+    "DumpThread": "",
+    "Dumploglevel": 3
+  },
+  "MyloaderConfig": {
+    "LoadThread": "",
+    "Loadloglevel": 3
+  }
+}
