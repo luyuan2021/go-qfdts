@@ -39,7 +39,7 @@ func checkMytools() {
 	//}
 	//fmt.Printf("fortune is available at %s\n", path)
 
-	var tools = []string{"mydumper", "myloader"}
+	var tools = []string{"mydumper", "myloader","mysqlpump"}
 	for _, v := range tools {
 		if checkCmd(v, "-V") == false {
 			log.Fatalf("操作系统未安装 %s 命令 ，程序退出，异常为：cmd.Run() failed\n", v)
@@ -50,8 +50,9 @@ func checkMytools() {
 				fmt.Printf("%s构建信息 :\n%s\n", v, string(out))
 				log.Fatalf("cmd.Run() failed with %s\n", err)
 			}
-			fmt.Printf("combined out:\n%s\n", string(out))
+			fmt.Printf("%s\n", string(out))
 		}
+
 	}
 
 }
@@ -63,7 +64,7 @@ func MyDumper(ip, port, userName, password string, backupdb []string, ignoredb [
 	bigVer := strings.Split(MySqlVersion, ".")[0] + "." + strings.Split(MySqlVersion, ".")[1]
 	// 如果是8.0以上的版本，需要先执行如下查询
 	if bigVer == "8.0" {
-		prepareSql := "select * from informance_schema.tables"
+		prepareSql := "select * from information_schema.tables"
 		_, _ = DB.Query(prepareSql)
 	}
 
@@ -82,7 +83,7 @@ func MyDumper(ip, port, userName, password string, backupdb []string, ignoredb [
 		i++
 	}
 	ignoreRegx := agrs1 + ".))'"
-	fmt.Println(ignoreRegx)
+	//fmt.Println(ignoreRegx)
 
 	s1, _ := os.Getwd()
 	DumpfileDir = s1 + "/databackup"
@@ -110,10 +111,12 @@ func MyDumper(ip, port, userName, password string, backupdb []string, ignoredb [
 	//}else if len(backupdb) >=1 {
 	//	cmd="mydumper --user "+userName+" --password "+password+" -h "+ ip + " -P "+ port+" --database " +strings.Join(backupdb," ") + " --triggers --events --routines --threads "+ dumperthread + " --less-locking --build-empty-files --verbose 3 --outputdir " + pwd + " --logfile " + s1 +"/mydump.log"
 	//}
-
+    fmt.Println("准备开始download数据，由于download数据时间长，建议重新开一个窗口 tail -f mydump.log")
+	fmt.Println("=====================================Mydumper命令如下：=====================================")
 	cmd = "mydumper --user " + userName + " --password " + password + " -h " + ip + " -P " + port + " --regex " + ignoreRegx + " --triggers --events --routines --threads " + dumperthread + " --less-locking --build-empty-files --verbose " + strconv.Itoa(dumploglevel) + " --outputdir " + DumpfileDir + " --logfile " + s1 + "/mydump.log"
 
 	fmt.Println(cmd)
+	fmt.Println("============================================================================================")
 
 	out := string(Cmd(cmd, true))
 	fmt.Println(out)

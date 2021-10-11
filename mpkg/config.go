@@ -8,22 +8,24 @@ import (
 )
 
 //结构体中字段大写开头表示可公开访问，小写表示私有（仅在定义当前结构体的包中可访问）。
+
 type ConfigInfo struct {
 	SrchostIp, SrcUser, SrcUserPasswd string
 	DsthostIp, DstUser, DstUserPasswd string
 	SrchostPort, DsthostPort          string
 	DoDB                              []string
 	IngoreDB                          []string
+	IngoreUser                        []string
 	MydumperConfig                    *MydumperConfig
 	MyloaderConfig                    *MyloaderConfig
 }
 
 type MydumperConfig struct {
-	DumpThread string
+	DumpThread   string
 	Dumploglevel int
 }
 type MyloaderConfig struct {
-	LoadThread string
+	LoadThread   string
 	Loadloglevel int
 }
 

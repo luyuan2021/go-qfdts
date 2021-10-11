@@ -8,11 +8,14 @@ import (
 )
 
 var DB *sql.DB
-var MySqlVersion string
+var MysqlBigVersion, MySqlVersion string
+var SrcBigVer,DstBigVer string
 var HasnotInnodbtable bool
+
 type UnInnodbTable struct {
-	DBNAME,TABLENAME,TABLEENGINE string
+	DBNAME, TABLENAME, TABLEENGINE string
 }
+
 var UnInnodbTableInfo []string
 
 //func NewUnInnodbTableInfo(dbname , tablename ,tableengine string) *UnInnodbTable {
@@ -23,16 +26,14 @@ var UnInnodbTableInfo []string
 //	}
 //}
 
-
 //收集数据库的统计信息
 //将统计信息打印到屏幕并打印到日志中，通过interface去实现这个功能
-func GetdbVersion() (err error) {
+func GetdbVersion(role string) (mysqlbigversion string, err error) {
 	verText := "select version() as MYSQLVERSION"
-
 	ret, err := DB.Query(verText)
 	if err != nil {
 		fmt.Println(err)
-		return err
+		return "", err
 	}
 
 	type dbVersion struct {
@@ -45,11 +46,15 @@ func GetdbVersion() (err error) {
 	myVer := strings.Split(v.mysqlVerk, ".")
 	tmpVer := strings.Split(myVer[2], "-")[0]
 	myVer = append(myVer[:2], myVer[3:]...)
-
+	MysqlBigVersion = myVer[0] + "." + myVer[1]
 	MySqlVersion = myVer[0] + "." + myVer[1] + "." + tmpVer
-	fmt.Println(MySqlVersion)
+	if role == "src" {
+		SrcBigVer=MysqlBigVersion
+	} else if role == "dst"{
+        DstBigVer=MysqlBigVersion
+	}
 
-	return
+	return MySqlVersion, nil
 }
 
 func ConnectDB(ip, port, userName, password string) (err error) {
@@ -120,10 +125,10 @@ func CountDBSize() (err error) {
 
 			if i > 0 {
 				fmt.Printf("[Notice]: The Engine of table %v.%v is %v,not InnoDB\n", t.tableSchema, t.tableName, t.tableEngine)
-                HasnotInnodbtable = true
-                //t1:=NewUnInnodbTableInfo(t.tableSchema,t.tableName,t.tableEngine)
-                info:=t.tableSchema +"==="+t.tableName+"==="+t.tableEngine
-                UnInnodbTableInfo=append(UnInnodbTableInfo,info)
+				HasnotInnodbtable = true
+				//t1:=NewUnInnodbTableInfo(t.tableSchema,t.tableName,t.tableEngine)
+				info := t.tableSchema + "===" + t.tableName + "===" + t.tableEngine
+				UnInnodbTableInfo = append(UnInnodbTableInfo, info)
 			}
 		}
 
@@ -285,81 +290,6 @@ func GetVET() (err error) {
 	}
 	return
 }
-
-func GetUser() (err error) {
-	userSql := "select" + " user ,host,authentication_string from mysql.user where user not in ('root','mysql.session','mysql.sys','mysql.infoschema','repl','qfsys','heartbeat')"
-	rows, err := DB.Query(userSql)
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-	type userInfo struct {
-		userName, userHost, authenticationString string
-	}
-	//sqlSlice := make([]string, 0)
-	var sqlSlice = make([]string, 0, 10)
-	var userSlice = make([]string, 0, 10)
-	for rows.Next() {
-		var u userInfo
-		err := rows.Scan(&u.userName, &u.userHost, &u.authenticationString)
-		if err != nil {
-			fmt.Printf("scan failed, err:%v\n", err)
-			return err
-		}
-		createuserSql := "create user '" + u.userName + "'@'" + u.userHost + "' identified by password '" + u.authenticationString +"'"
-		user := "'" + u.userName + "'@" + "'" + u.userHost + "'"
-		sqlSlice = append(sqlSlice, createuserSql)
-		userSlice = append(userSlice,user)
-	}
-	fmt.Println(strings.Join(sqlSlice,";\n"))
-
-	//for _, v := range sqlSlice {
-	//	fmt.Println(v)
-	//}
-
-	// 权限在这里实现。
-	var grantSlice = make([]string, 0, 10)
-	for _, v := range userSlice {
-		//fmt.Println(v)
-		grantsSql:="show grants for " + v
-		//fmt.Println(grantsSql)
-		rows,err:=DB.Query(grantsSql)
-		if err != nil {
-			fmt.Println(err)
-			return err
-		}
-		type userGrant struct {
-            grants string
-		}
-		for rows.Next(){
-			var g userGrant
-			err := rows.Scan(&g.grants)
-			if err != nil {
-				fmt.Printf("scan failed, err:%v\n", err)
-				return err
-			}
-			grantSlice=append(grantSlice, g.grants)
-		}
-	}
-    //here 输出权限的slice
-    fmt.Println(strings.Join(grantSlice,";\n"))
-	return
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 //func QUERYDB(querysql string) (*sql.Rows) {  // 不能直接返回 ret，返回值列表
 // 实现一个访问数据库的统一方法，

@@ -2,6 +2,7 @@ package mpkg
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -17,20 +18,26 @@ func ModifyData() {
 
 }
 func modifyRowFixed(dir string) {
-	cmd := "ls " + dir + "  | grep 'schema.sql'"
-	out := string(Cmd(cmd, true))
+	cmd1 := "ls " + dir + "  | grep 'schema.sql'|wc -l"
+	out1, _ := strconv.Atoi(string(Cmd(cmd1, true)))
 
-	tableschemafile := strings.Split(out, "\n")
-	fmt.Println(tableschemafile)
-	for _, v := range tableschemafile {
-		if v != "" {
-			file := dir + "/" + v
-			flag := "s/ROW_FORMAT=FIXED//g"
-			cmd := "sed -i -e " + "\"" + flag + "\"" + " " + file
-			//fmt.Println(cmd)
-			Cmd(cmd, true)
+	if out1 == 0 {
+		fmt.Println("当前备份的数据库不存在表")
+	} else {
+		cmd2 := "ls " + dir + "  | grep 'schema.sql'"
+		out2 := string(Cmd(cmd2, true))
+		tableschemafile := strings.Split(out2, "\n")
+		fmt.Println(tableschemafile)
+		for _, v := range tableschemafile {
+			if v != "" {
+				file := dir + "/" + v
+				flag := "s/ROW_FORMAT=FIXED//g"
+				cmd := "sed -i -e " + "\"" + flag + "\"" + " " + file
+				//fmt.Println(cmd)
+				Cmd(cmd, true)
+			}
+
 		}
-
 	}
 
 }

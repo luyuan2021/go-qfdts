@@ -19,7 +19,7 @@ import (
 //}
 func MyLoader(ip, port, userName, password string, loadthread string, dumploglevel int) (err error) {
 	cmdArgs := []string{"--user", userName, "--password", password, "-h", ip, "-P", port,"--directory",DumpfileDir,"--overwrite-tables","--verbose",strconv.Itoa(dumploglevel),"--threads",loadthread}
-	cmd:="mydumper"
+	cmd:="myloader"
 	for _,v :=range cmdArgs{
 		cmd=cmd+" " +v
 	}
