@@ -1,0 +1,45 @@
+{
+  "SrchostIp": "10.10.30.70",
+  "SrcUser": "root",
+  "SrcUserPasswd": "E6zowpbawn",
+  "DsthostIp": "10.10.30.70",
+  "DstUser": "root",
+  "DstUserPasswd": "yzokSzsa6u",
+  "SrchostPort": "32120",
+  "DsthostPort": "31783",
+  "DoDB": [
+  ],
+  "IngoreDB": [
+    "information_schema",
+    "performance_schema",
+    "sys",
+    "mysql"
+  ],
+  "ReplIgnoreDB": [
+    "information_schema",
+    "performance_schema",
+    "sys",
+    "mysql"
+  ],
+  "IngoreUser": [
+    "root",
+    "repl",
+    "qfsys",
+    "heartbeat",
+    "mysql.infoschema",
+    "mysql.session",
+    "mysql.sys"
+  ],
+  "MydumperConfig": {
+    "DumpThread": "",
+    "Dumploglevel": 3
+  },
+  "MyloaderConfig": {
+    "LoadThread": "",
+    "Loadloglevel": 3
+  },
+  "TableCheckConfig": {
+    "tablecountsthread": "",
+    "Tablechecksumthread": ""
+  }
+}
